@@ -1,23 +1,21 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeScreen from './screens/HomeScreen';
-import PredictionScreen from './screens/PredictionScreen';
-import ProfileScreen from './screens/ProfileScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import HomeScreen from '../screens/HomeScreen';
+import PredictionScreen from '../screens/PredictionScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {
-  StyleSheet,
+import { StyleSheet } from 'react-native';
 
-} from 'react-native';
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        screenOptions={({route}) => ({
-          tabBarIcon: ({color, size}) => {
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color }) => {
             if (route.name === 'Prediction') {
               return (
                 <MaterialCommunityIcons
@@ -25,13 +23,11 @@ const AppNavigator = () => {
                   size={50}
                   color={color}
                   style={styles.icon}
-
                 />
               );
             } else if (route.name === 'Home') {
               return (
-                <SimpleLineIcons name="magic-wand" size={40} color={color}    style={styles.icon}
-/>
+                <SimpleLineIcons name="magic-wand" size={40} color={color} style={styles.icon} />
               );
             } else if (route.name === 'Profile') {
               return (
@@ -40,12 +36,10 @@ const AppNavigator = () => {
                   size={45}
                   color={color}
                   style={styles.icon}
-
                 />
               );
             }
           },
-
           tabBarActiveTintColor: '#526466',
           tabBarInactiveTintColor: '#cec5c0',
           tabBarStyle: {
@@ -66,7 +60,6 @@ const AppNavigator = () => {
             elevation: 5,
             marginBottom: 30,
           },
-
           tabBarIconStyle: {
             textShadowColor: '#cec5c0',
             textShadowOffset: { width: 0, height: 0 },
@@ -74,9 +67,14 @@ const AppNavigator = () => {
           },
           headerShown: false,
           tabBarShowLabel: false,
-        })}>
+        })}
+      >
         <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Prediction" component={PredictionScreen} />
+        <Tab.Screen
+          name="Prediction"
+          component={PredictionScreen}
+          options={{ tabBarButton: () => null }}
+        />
         <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     </NavigationContainer>
@@ -84,11 +82,11 @@ const AppNavigator = () => {
 };
 
 const styles = StyleSheet.create({
- 
   icon: {
     textShadowColor: '#526466',
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 5,
   },
 });
+
 export default AppNavigator;

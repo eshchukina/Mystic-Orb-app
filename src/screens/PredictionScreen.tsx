@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SQLite from 'react-native-sqlite-2';
 import axios from 'axios';
 import SoundPlayer from 'react-native-sound-player';
+import {useTranslation} from 'react-i18next';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -24,26 +25,45 @@ interface Word {
   translation: string;
 }
 
-const PredictionScreen: React.FC = () => {
+const PredictionScreen: React.FC = ({route}: any) => {
+  const {isEnabled} = route.params || {};
   const [currentTextIndex, setCurrentTextIndex] = useState<number>(0);
-  const [shuffledTexts, setShuffledTexts] = useState<string[]>([]);
+  const [shuffledTexts, setShuffledTexts] = useState<Word[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [buttonText, setButtonText] = useState<string>('heart-outline');
   const [isButtonEnabled, setIsButtonEnabled] = useState<boolean>(false);
   const textRef = useRef<Animatable.Text | null>(null);
-  const [isEnabled, setIsEnabled] = useState<boolean>(false);
-
+  const [language, setLanguage] = useState<string>('en');
+  const {t} = useTranslation();
+  console.log('isEnabled', isEnabled);
+  console.log('language', language);
   useEffect(() => {
-    fetchWordsFromAPI();
-  }, []);
+    const fetchLanguage = async () => {
+      try {
+        const storedLanguage = await AsyncStorage.getItem('selectedLanguage');
+        if (storedLanguage) {
+          setLanguage(storedLanguage);
+        } else {
+          setLanguage('en');
+        }
+      } catch (error) {
+        console.error('Error fetching language from storage:', error);
+      }
+    };
 
-  useEffect(() => {
-    fetchWordsFromAPI();
+    fetchLanguage();
   }, [isEnabled]);
+
+  useEffect(() => {
+    console.log('efef');
+    if (language) {
+      fetchWordsFromAPI();
+    }
+  }, [language]);
 
   const fetchWordsFromAPI = async () => {
     try {
-      const response = await axios.get<{word: string; translation: string}[]>(
+      const response = await axios.get<Word[]>(
         'https://eb-api.una-team.pro/words/predictions',
       );
 
@@ -51,7 +71,6 @@ const PredictionScreen: React.FC = () => {
         word: item.word,
         translation: item.translation,
       }));
-
       const shuffledData = fetchedData.sort(() => Math.random() - 0.5);
 
       db.transaction(tx => {
@@ -68,9 +87,12 @@ const PredictionScreen: React.FC = () => {
 
       db.transaction(tx => {
         tx.executeSql('SELECT * FROM Words;', [], (_, {rows: {_array}}) => {
-          const retrievedData = isEnabled
-            ? _array.map((item: {word: string}) => item.word)
-            : _array.map((item: {translation: string}) => item.translation);
+          const retrievedData = _array.map(
+            (item: {word: string; translation: string}) => ({
+              word: item.word,
+              translation: item.translation,
+            }),
+          );
 
           const shuffledRetrievedData = retrievedData.sort(
             () => Math.random() - 0.5,
@@ -106,7 +128,9 @@ const PredictionScreen: React.FC = () => {
       if (textRef.current) {
         textRef.current.fadeIn(9000);
       }
-      setCurrentTextIndex(prevIndex => (prevIndex + 1) % shuffledTexts.length);
+      await setCurrentTextIndex(
+        prevIndex => (prevIndex + 1) % shuffledTexts.length,
+      );
       SoundPlayer.playAsset(require('../../assets/sound3.mp3'));
       setIsButtonEnabled(true);
     } catch (error) {
@@ -120,7 +144,10 @@ const PredictionScreen: React.FC = () => {
     } else {
       setButtonText('heart');
 
-      const displayedText = shuffledTexts[currentTextIndex];
+      const displayedText =
+        language === 'ru'
+          ? shuffledTexts[currentTextIndex]?.word
+          : shuffledTexts[currentTextIndex]?.translation;
 
       try {
         let existingTranslations = await AsyncStorage.getItem('savedWords');
@@ -133,9 +160,14 @@ const PredictionScreen: React.FC = () => {
         }
 
         const newWord = {
-          text: displayedText,
+          text: displayedText || '',
+          translation:
+            language === 'ru'
+              ? shuffledTexts[currentTextIndex]?.translation
+              : shuffledTexts[currentTextIndex]?.word,
           date: new Date().toISOString(),
           tag: 0,
+          language: language,
         };
         translations.push(newWord);
         await AsyncStorage.setItem('savedWords', JSON.stringify(translations));
@@ -179,22 +211,21 @@ const PredictionScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titleText}>
-        Click on the screen and get a prediction
-      </Text>
+      <Text style={styles.titleText}>{t('title')}</Text>
 
       <Animatable.Text
         ref={textRef}
         style={[
           styles.containerText,
-          isEnabled ? styles.fontFirst : styles.fontFirstru,
+          language === 'en' ? styles.fontFirst : styles.fontFirstru,
         ]}>
-        {shuffledTexts[currentTextIndex]}
+        {language === 'ru'
+          ? shuffledTexts[currentTextIndex]?.word
+          : shuffledTexts[currentTextIndex]?.translation}
       </Animatable.Text>
 
       <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
-        <Animated.View
-          style={[styles.imageContainer, {transform: [{rotate: spin}]}]}>
+        <Animated.View style={[{transform: [{rotate: spin}]}]}>
           <Animatable.Image
             animation={zoomOut}
             source={require('../../assets/ball.png')}
@@ -270,12 +301,12 @@ const styles = StyleSheet.create({
   },
   button: {
     position: 'absolute',
-    bottom: windowHeight * 0.1,
+    bottom: windowHeight * 0.08,
   },
   imageHeart: {
     fontSize: windowWidth * 0.14,
     textShadowColor: '#7b4c52',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
   },
   loadingContainer: {
@@ -284,7 +315,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#493b48',
   },
-
 });
 
 export default PredictionScreen;

@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import AppNavigator from './src/AppNavigator';
+import AppNavigator from './src/navigation/AppNavigator';
 const App = () => {
   return (
     <View style={styles.container}>

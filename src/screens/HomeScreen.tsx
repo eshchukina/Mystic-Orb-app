@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import IconButton from '../buttons/IconButton';
 import Setting from 'react-native-vector-icons/SimpleLineIcons';
 import Star from 'react-native-vector-icons/SimpleLineIcons';
 import Button from '../buttons/Button';
-
+import {useTranslation} from 'react-i18next';
 const screenHeight = Dimensions.get('window').height;
 
 interface AnimationProps {
@@ -21,8 +21,12 @@ interface AnimationProps {
 }
 
 const HomeScreen: React.FC = ({navigation}) => {
+  const {t} = useTranslation();
+  const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-  const drawerTranslateY = useRef<Animated.Value>(new Animated.Value(-screenHeight)).current;
+  const drawerTranslateY = useRef<Animated.Value>(
+    new Animated.Value(-screenHeight),
+  ).current;
   const fadeAnim = useRef<Animated.Value>(new Animated.Value(0)).current;
 
   const toggleDrawer = () => {
@@ -66,7 +70,7 @@ const HomeScreen: React.FC = ({navigation}) => {
     [...Array(50)].map(() => ({
       anim: new Animated.Value(0),
       duration: Math.random() * 10000 + 10000,
-    }))
+    })),
   );
 
   useEffect(() => {
@@ -74,7 +78,7 @@ const HomeScreen: React.FC = ({navigation}) => {
   }, []);
 
   const startAnimations = () => {
-    animations.forEach(({ anim, duration }) => {
+    animations.forEach(({anim, duration}) => {
       Animated.loop(
         Animated.parallel([
           Animated.timing(anim, {
@@ -86,16 +90,32 @@ const HomeScreen: React.FC = ({navigation}) => {
             toValue: 1,
             duration: duration * 2,
             useNativeDriver: true,
-            easing: (t) => Math.sin(t * Math.PI),
+            easing: t => Math.sin(t * Math.PI),
           }),
-        ])
+        ]),
       ).start();
     });
   };
 
+  const handlePress = async () => {
+    if (isDrawerOpen) {
+      await closeDrawer();
+    }
+    navigation.navigate('Prediction', {isEnabled});
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-      <TouchableWithoutFeedback onPress={isDrawerOpen ? closeDrawer : undefined}>
+    <View style={{flex: 1}}>
+      <Animated.View
+        style={[
+          styles.drawer,
+          {transform: [{translateY: drawerTranslateY}]},
+          {opacity: fadeAnim},
+        ]}>
+        <DrawerMenu isEnabled={isEnabled} setIsEnabled={setIsEnabled} />
+      </Animated.View>
+      <TouchableWithoutFeedback
+        onPress={isDrawerOpen ? closeDrawer : undefined}>
         <View style={styles.container}>
           <View style={styles.header}>
             <IconButton
@@ -111,7 +131,7 @@ const HomeScreen: React.FC = ({navigation}) => {
               onPress={toggleDrawer}
             />
           </View>
-          {animations.map(({ anim }, index) => {
+          {animations.map(({anim}, index) => {
             const initialTranslateY = -Math.random() * screenHeight;
             const initialTranslateX = (Math.random() - 0.5) * 2 * 150;
 
@@ -142,34 +162,27 @@ const HomeScreen: React.FC = ({navigation}) => {
                       },
                     ],
                   },
-                ]}
-              >
-                <Star name="star" size={20} color="#526466" style={styles.iconStar}/>
+                ]}>
+                <Star
+                  name="star"
+                  size={20}
+                  color="#526466"
+                  style={styles.iconStar}
+                />
               </Animated.View>
             );
           })}
 
           <View style={styles.container}>
-            <Animated.View
-              style={[
-                styles.drawer,
-                { transform: [{ translateY: drawerTranslateY }] },
-                { opacity: fadeAnim },
-              ]}
-            >
-              <DrawerMenu  />
-            </Animated.View>
-            <Text style={styles.titleText}>
-              Welcome to the Mystic Orb, where you can get predictions
-            </Text>
+            <Text style={styles.titleText}>{t('welcome')}</Text>
 
             <Button
-              text="get prediction"
+              text={t('mainButton')}
               paddingRight={15}
               paddingLeft={15}
               padding={15}
               color="#7b4c52"
-              onPress={() => navigation.navigate('Prediction')}
+              onPress={handlePress}
             />
           </View>
         </View>
@@ -188,10 +201,10 @@ const styles = StyleSheet.create({
   drawer: {
     borderRadius: 20,
     backgroundColor: '#7b4c52',
-    zIndex: 200,
+    zIndex: 2000,
     position: 'absolute',
-    height: 400,
-    top: -30,
+    height: 450,
+    top: 0,
 
     width: '100%',
     shadowColor: '#cec5c0',
@@ -214,7 +227,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#cec5c0',
     textShadowColor: '#cec5c0',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
   },
   text: {
@@ -223,25 +236,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#cec5c0',
     textShadowColor: '#cec5c0',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
   },
   star: {
     zIndex: 1000,
     position: 'absolute',
     top: 0,
-    left: '50%',
+    left: '45%',
   },
   icon: {
     textShadowColor: '#cec5c0',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
   },
-  iconStar:{
+  iconStar: {
     textShadowColor: '#526466',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
-  }
+  },
 });
 
 export default HomeScreen;

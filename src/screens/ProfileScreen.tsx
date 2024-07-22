@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,13 +9,14 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import { heightPercentageToDP } from 'react-native-responsive-screen';
+import {heightPercentageToDP} from 'react-native-responsive-screen';
 import * as Animatable from 'react-native-animatable';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import Info from 'react-native-vector-icons/FontAwesome5';
+import {useFocusEffect} from '@react-navigation/native';
+import Info from 'react-native-vector-icons/AntDesign';
+import {useTranslation} from 'react-i18next';
 
-const { width: screenWidth } = Dimensions.get('window');
+const {width: screenWidth} = Dimensions.get('window');
 const isSmallScreen = screenWidth < 375;
 
 interface SavedWord {
@@ -27,6 +28,7 @@ interface SavedWord {
 const ProfileScreen: React.FC = () => {
   const [savedWords, setSavedWords] = useState<SavedWord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const {t} = useTranslation();
 
   const loadSavedWords = async () => {
     try {
@@ -90,18 +92,17 @@ const ProfileScreen: React.FC = () => {
 
   const renderContent = () => {
     if (isLoading) {
-      return <View style={styles.loadingContainer}>
-   <ActivityIndicator size="large" color="#526466" />
-
-      </View>;
-    } else if (savedWords.length === 0) {
       return (
-        <Text style={styles.wordText}>Here will be your saved predictions</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#526466" />
+        </View>
       );
+    } else if (savedWords.length === 0) {
+      return <Text style={styles.wordText}>{t('saved')}</Text>;
     } else {
       const wordsWithTag1 = savedWords.filter(word => word.tag === 1).length;
 
-      const renderItem = ({ item, index }: { item: SavedWord; index: number }) => (
+      const renderItem = ({item, index}: {item: SavedWord; index: number}) => (
         <View style={styles.wordItem}>
           <Pressable
             key={index}
@@ -123,7 +124,7 @@ const ProfileScreen: React.FC = () => {
             </Text>
             <Pressable onPress={() => removeWord(index)}>
               <Info
-                name="broom"
+                name="delete"
                 size={20}
                 color="#cec5c0"
                 style={item.tag === 1 ? styles.selectedItem : null}
@@ -135,9 +136,7 @@ const ProfileScreen: React.FC = () => {
 
       return (
         <View style={styles.container}>
-          <Text style={styles.wordTitle}>
-            List of your predictions:
-          </Text>
+          <Text style={styles.wordTitle}>{t('list')}</Text>
           <FlatList
             data={savedWords}
             renderItem={renderItem}
@@ -146,7 +145,8 @@ const ProfileScreen: React.FC = () => {
 
           <View>
             <Text style={styles.wordTitle}>
-              Predictions that came true: {wordsWithTag1}
+              {t('true')}
+              {wordsWithTag1}
             </Text>
           </View>
         </View>
@@ -185,8 +185,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#c4661f',
   },
-
-
   iconsRow: {
     flexDirection: 'row',
     textAlign: 'center',
@@ -212,8 +210,8 @@ const styles = StyleSheet.create({
   },
   wordText: {
     fontFamily: 'antikvarika1',
-    padding: 5,
-    fontSize: 17,
+    padding: 10,
+    fontSize: 18,
     color: '#cec5c0',
     flexWrap: 'wrap',
     flexShrink: 1,
@@ -227,7 +225,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#cec5c0',
     textShadowColor: '#cec5c0',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
   },
   wordTextDate: {

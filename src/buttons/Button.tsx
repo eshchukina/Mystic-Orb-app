@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     zIndex: 2000,
     fontSize: 25,
     textShadowColor: '#cec5c0',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
   },
 });

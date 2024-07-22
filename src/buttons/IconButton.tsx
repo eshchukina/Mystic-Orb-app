@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     fontFamily: 'antikvarika1',
     color: '#836e4b',
     textShadowColor: '#836e4b',
-    textShadowOffset: { width: 0, height: 0 },
+    textShadowOffset: {width: 0, height: 0},
     textShadowRadius: 5,
     fontSize: 25,
   } as TextStyle,
