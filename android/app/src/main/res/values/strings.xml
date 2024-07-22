@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MysticOrb</string>
+     <color name="app_background">#493b48</color>
 </resources>
