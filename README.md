@@ -5,7 +5,6 @@
 ![screenshot 1](https://github.com/eshchukina/Mystic-Orb-app/blob/main/assets/screenshot/photo_2024-07-22_14-24-45.jpg)
 ![screenshot 2](https://github.com/eshchukina/Mystic-Orb-app/blob/main/assets/screenshot/photo_2024-07-22_14-20-13.jpg)
 ![screenshot 3](https://github.com/eshchukina/Mystic-Orb-app/blob/main/assets/screenshot/photo_2024-07-22_14-20-11.jpg)
-
 ![screenshot 4](https://github.com/eshchukina/Mystic-Orb-app/blob/main/assets/screenshot/photo_2024-07-22_14-25-52.jpg)
 ![screenshot 5](https://github.com/eshchukina/Mystic-Orb-app/blob/main/assets/screenshot/photo_2024-07-22_14-20-10.jpg)
 ![screenshot 6](https://github.com/eshchukina/Mystic-Orb-app/blob/main/assets/screenshot/photo_2024-07-22_14-20-08.jpg)
